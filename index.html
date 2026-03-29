@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ケアノート AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F5F0;
+  --surface: #FFFFFF;
+  --border: #E2DDD6;
+  --text: #1A1814;
+  --text2: #6B6660;
+  --text3: #A8A29C;
+  --accent: #1B5E40;
+  --accent2: #2D7A55;
+  --accent-light: #E8F5EE;
+  --accent-text: #0D3D28;
+  --warn: #C94A0A;
+  --warn-light: #FEF0E8;
+  --sans: 'Noto Sans JP', sans-serif;
+  --bottom-safe: env(safe-area-inset-bottom, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); }
+.app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+  padding-top: max(12px, env(safe-area-inset-top));
+}
+.topbar-logo { display: flex; align-items: center; gap: 8px; }
+.logo-mark {
+  width: 32px; height: 32px; border-radius: 9px;
+  background: var(--accent); color: #fff;
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-text { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
+.logo-ai { font-size: 10px; color: var(--text3); font-weight: 400; margin-left: 2px; }
+.step-progress {
+  background: var(--surface);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.step-dots { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
+.step-dot { height: 4px; border-radius: 2px; background: var(--border); transition: all 0.3s; flex: 1; }
+.step-dot.done { background: var(--accent2); }
+.step-dot.active { background: var(--accent); }
+.step-info { display: flex; justify-content: space-between; align-items: center; }
+.step-label { font-size: 13px; font-weight: 500; color: var(--text2); }
+.step-count { font-size: 11px; color: var(--text3); }
+.scroll-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.step-panel { display: none; padding: 20px 16px; animation: fadeUp 0.25s ease; }
+.step-panel.active { display: block; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.step-heading { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.step-subheading { font-size: 13px; color: var(--text2); margin-bottom: 20px; line-height: 1.5; }
+.field { margin-bottom: 16px; }
+label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+input[type=text], select, textarea {
+  width: 100%; font-family: var(--sans); font-size: 15px;
+  padding: 12px 14px; border: 1.5px solid var(--border);
+  border-radius: 10px; background: var(--surface); color: var(--text);
+  appearance: none; -webkit-appearance: none; transition: border-color 0.15s;
+}
+input[type=text]:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent2); }
+textarea { resize: none; line-height: 1.65; }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+.vitals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.vital-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+.vital-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+.vital-input { font-size: 18px; font-weight: 500; border: none; background: none; color: var(--text); width: 100%; padding: 0; }
+.vital-input:focus { outline: none; }
+.vital-unit { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.chip { padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--surface); font-size: 13px; color: var(--text2); cursor: pointer; transition: all 0.15s; font-family: var(--sans); }
+.chip.selected { border-color: var(--accent); background: var(--accent-light); color: var(--accent-text); font-weight: 500; }
+.soap-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+.soap-card-head { padding: 10px 14px; background: var(--accent-light); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.soap-tag { font-size: 11px; font-weight: 700; background: var(--accent); color: #fff; padding: 2px 8px; border-radius: 5px; font-family: monospace; }
+.soap-card-title { font-size: 12px; color: var(--accent-text); font-weight: 500; }
+.soap-card-body { padding: 12px 14px; font-size: 14px; line-height: 1.75; color: var(--text); }
+.result-actions { display: flex; gap: 8px; margin-top: 4px; margin-bottom: 80px; }
+.btn-outline { flex: 1; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); font-size: 13px; font-weight: 500; font-family: var(--sans); color: var(--text2); cursor: pointer; transition: background 0.15s; }
+.bottom-bar { background: var(--surface); border-top: 1px solid var(--border); padding: 12px 16px; padding-bottom: calc(12px + var(--bottom-safe)); display: flex; gap: 10px; flex-shrink: 0; }
+.btn-back { width: 48px; height: 48px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.btn-next { flex: 1; height: 48px; border-radius: 12px; background: var(--accent); color: #fff; border: none; font-size: 15px; font-weight: 700; font-family: var(--sans); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: opacity 0.15s, transform 0.1s; }
+.btn-next:active { transform: scale(0.98); }
+.btn-next:disabled { opacity: 0.45; cursor: not-allowed; }
+.spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-box { background: var(--warn-light); border: 1px solid #F4B08A; border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--warn); margin-bottom: 16px; display: none; line-height: 1.5; }
+.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--text); color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 13px; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 200; white-space: nowrap; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="logo-mark">ケ</div>
+      <span class="logo-text">ケアノート<span class="logo-ai">AI</span></span>
+    </div>
+    <span style="font-size:11px;color:var(--text3);">ver 1.0</span>
+  </div>
+  <div class="step-progress">
+    <div class="step-dots">
+      <div class="step-dot active" id="dot0"></div>
+      <div class="step-dot" id="dot1"></div>
+      <div class="step-dot" id="dot2"></div>
+      <div class="step-dot" id="dot3"></div>
+      <div class="step-dot" id="dot4"></div>
+    </div>
+    <div class="step-info">
+      <span class="step-label" id="stepLabel">利用者・日時</span>
+      <span class="step-count" id="stepCount">1 / 5</span>
+    </div>
+  </div>
+  <div class="scroll-area" id="scrollArea">
+
+    <div class="step-panel active" id="step0">
+      <div class="step-heading">利用者と日時</div>
+      <div class="step-subheading">基本情報を入力してください</div>
+      <div class="field">
+        <label>利用者名</label>
+        <select id="userName">
+          <option value="">選択してください</option>
+          <option value="田中 花子（82歳・女性・要介護2）">田中 花子（82歳・女性・要介護2）</option>
+          <option value="山本 一郎（76歳・男性・要介護3）">山本 一郎（76歳・男性・要介護3）</option>
+          <option value="佐藤 幸子（88歳・女性・要介護1）">佐藤 幸子（88歳・女性・要介護1）</option>
+          <option value="その他">その他（直接入力）</option>
+        </select>
+      </div>
+      <div class="field" id="customNameField" style="display:none;">
+        <label>利用者名（直接入力）</label>
+        <input type="text" id="customName" placeholder="例：鈴木 太郎（74歳・男性・要介護2）">
+      </div>
+      <div class="field">
+        <label>訪問日</label>
+        <input type="text" id="visitDate" placeholder="例：2026年4月1日">
+      </div>
+      <div class="field">
+        <label>訪問時間</label>
+        <input type="text" id="visitTime" placeholder="例：13:00〜14:30">
+      </div>
+      <div class="field">
+        <label>担当スタッフ</label>
+        <input type="text" id="staffName" placeholder="例：鈴木 美咲">
+      </div>
+    </div>
+
+    <div class="step-panel" id="step1">
+      <div class="step-heading">バイタル測定</div>
+      <div class="step-subheading">測定した数値を入力してください<br>未測定は空欄でOKです</div>
+      <div class="vitals-grid">
+        <div class="vital-card">
+          <div class="vital-label">体温</div>
+          <input class="vital-input" type="text" inputmode="decimal" id="temp" placeholder="36.5">
+          <div class="vital-unit">℃</div>
+        </div>
+        <div class="vital-card">
+          <div class="vital-label">血圧</div>
+          <input class="vital-input" type="text" id="bp" placeholder="128/74">
+          <div class="vital-unit">mmHg</div>
+        </div>
+        <div class="vital-card">
+          <div class="vital-label">脈拍</div>
+          <input class="vital-input" type="text" inputmode="numeric" id="pulse" placeholder="72">
+          <div class="vital-unit">回/分</div>
+        </div>
+        <div class="vital-card">
+          <div class="vital-label">SpO₂</div>
+          <input class="vital-input" type="text" inputmode="numeric" id="spo2" placeholder="97">
+          <div class="vital-unit">%</div>
+        </div>
+      </div>
+      <div class="field" style="margin-top:16px;">
+        <label>体重（kg）</label>
+        <input type="text" inputmode="decimal" id="weight" placeholder="例：52.3">
+      </div>
+    </div>
+
+    <div class="step-panel" id="step2">
+      <div class="step-heading">実施した介護内容</div>
+      <div class="step-subheading">タップで選択 + 自由記述でメモ</div>
+      <div class="field">
+        <label>実施項目（複数選択可）</label>
+        <div class="chip-group" id="careChips">
+          <div class="chip" onclick="toggleChip(this)">入浴介助</div>
+          <div class="chip" onclick="toggleChip(this)">清拭</div>
+          <div class="chip" onclick="toggleChip(this)">更衣介助</div>
+          <div class="chip" onclick="toggleChip(this)">食事介助</div>
+          <div class="chip" onclick="toggleChip(this)">服薬確認</div>
+          <div class="chip" onclick="toggleChip(this)">口腔ケア</div>
+          <div class="chip" onclick="toggleChip(this)">排泄介助</div>
+          <div class="chip" onclick="toggleChip(this)">体位変換</div>
+          <div class="chip" onclick="toggleChip(this)">移乗介助</div>
+          <div class="chip" onclick="toggleChip(this)">歩行介助</div>
+          <div class="chip" onclick="toggleChip(this)">リハビリ補助</div>
+          <div class="chip" onclick="toggleChip(this)">買い物支援</div>
+          <div class="chip" onclick="toggleChip(this)">掃除・洗濯</div>
+          <div class="chip" onclick="toggleChip(this)">安否確認</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>補足メモ</label>
+        <textarea id="careMemo" rows="3" placeholder="例：昼食は全量摂取、入浴時に右膝の痛みを確認"></textarea>
+      </div>
+    </div>
+
+    <div class="step-panel" id="step3">
+      <div class="step-heading">利用者の様子</div>
+      <div class="step-subheading">本人の状態や訴えを記録します</div>
+      <div class="field">
+        <label>全体的な様子</label>
+        <div class="chip-group" id="conditionChips">
+          <div class="chip" onclick="toggleChip(this)">元気そう</div>
+          <div class="chip" onclick="toggleChip(this)">疲れ気味</div>
+          <div class="chip" onclick="toggleChip(this)">表情明るい</div>
+          <div class="chip" onclick="toggleChip(this)">表情暗い</div>
+          <div class="chip" onclick="toggleChip(this)">会話活発</div>
+          <div class="chip" onclick="toggleChip(this)">傾眠傾向</div>
+          <div class="chip" onclick="toggleChip(this)">食欲あり</div>
+          <div class="chip" onclick="toggleChip(this)">食欲低下</div>
+          <div class="chip" onclick="toggleChip(this)">痛みの訴えあり</div>
+          <div class="chip" onclick="toggleChip(this)">協力的</div>
+          <div class="chip" onclick="toggleChip(this)">拒否あり</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>本人の言葉・訴え</label>
+        <textarea id="userWords" rows="3" placeholder="例：「右膝が痛い」「お風呂気持ちよかった」など"></textarea>
+      </div>
+      <div class="field">
+        <label>特記事項・申し送り</label>
+        <textarea id="remarks" rows="3" placeholder="例：排便3日なし・次回確認要。長女から電話あり面談希望"></textarea>
+      </div>
+    </div>
+
+    <div class="step-panel" id="step4">
+      <div class="step-heading">ケア記録</div>
+      <div class="step-subheading" id="resultSub">AIが記録を生成しています...</div>
+      <div class="error-box" id="errorBox"></div>
+      <div id="resultContent"></div>
+    </div>
+
+  </div>
+  <div class="bottom-bar">
+    <button class="btn-back" id="backBtn" onclick="prevStep()">←</button>
+    <button class="btn-next" id="nextBtn" onclick="nextStep()">
+      <span id="nextBtnText">次へ</span>
+      <span id="nextBtnArrow">→</span>
+    </button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let currentStep = 0;
+const TOTAL_STEPS = 5;
+const stepLabels = ['利用者・日時','バイタル測定','介護内容','利用者の様子','ケア記録'];
+
+function updateProgress() {
+  for (let i = 0; i < TOTAL_STEPS; i++) {
+    document.getElementById('dot' + i).className = 'step-dot' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
+    document.getElementById('step' + i).classList.toggle('active', i === currentStep);
+  }
+  document.getElementById('stepLabel').textContent = stepLabels[currentStep];
+  document.getElementById('stepCount').textContent = `${currentStep + 1} / ${TOTAL_STEPS}`;
+  document.getElementById('backBtn').style.opacity = currentStep === 0 ? '0.3' : '1';
+  document.getElementById('backBtn').disabled = currentStep === 0;
+  const isLast = currentStep === TOTAL_STEPS - 1;
+  document.getElementById('nextBtnText').textContent = isLast ? '新しい記録' : currentStep === TOTAL_STEPS - 2 ? '記録を生成' : '次へ';
+  document.getElementById('nextBtnArrow').textContent = isLast ? '＋' : currentStep === TOTAL_STEPS - 2 ? '✦' : '→';
+  document.getElementById('scrollArea').scrollTop = 0;
+}
+
+function nextStep() {
+  if (currentStep === TOTAL_STEPS - 2) { generateRecord(); return; }
+  if (currentStep === TOTAL_STEPS - 1) { resetAll(); return; }
+  currentStep++;
+  updateProgress();
+}
+
+function prevStep() {
+  if (currentStep === 0) return;
+  currentStep--;
+  updateProgress();
+}
+
+function toggleChip(el) { el.classList.toggle('selected'); }
+
+function getSelectedChips(groupId) {
+  return [...document.querySelectorAll(`#${groupId} .chip.selected`)].map(c => c.textContent).join('・');
+}
+
+async function generateRecord() {
+  currentStep++;
+  updateProgress();
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.disabled = true;
+  document.getElementById('nextBtnText').textContent = '生成中';
+  document.getElementById('nextBtnArrow').innerHTML = '<div class="spinner"></div>';
+
+  const userName = document.getElementById('userName').value === 'その他'
+    ? document.getElementById('customName').value
+    : document.getElementById('userName').value;
+  const visitDate = document.getElementById('visitDate').value;
+  const visitTime = document.getElementById('visitTime').value;
+  const staff = document.getElementById('staffName').value;
+  const temp = document.getElementById('temp').value;
+  const bp = document.getElementById('bp').value;
+  const pulse = document.getElementById('pulse').value;
+  const spo2 = document.getElementById('spo2').value;
+  const weight = document.getElementById('weight').value;
+  const careItems = getSelectedChips('careChips');
+  const careMemo = document.getElementById('careMemo').value;
+  const condition = getSelectedChips('conditionChips');
+  const userWords = document.getElementById('userWords').value;
+  const remarks = document.getElementById('remarks').value;
+
+  document.getElementById('resultSub').textContent = 'AIが記録を生成しています...';
+  document.getElementById('resultContent').innerHTML = '';
+  document.getElementById('errorBox').style.display = 'none';
+
+  const vitals = [temp&&`体温${temp}℃`, bp&&`血圧${bp}mmHg`, pulse&&`脈拍${pulse}回/分`, spo2&&`SpO₂${spo2}%`, weight&&`体重${weight}kg`].filter(Boolean).join('、');
+
+  const prompt = `あなたは経験豊富な訪問介護のサービス提供責任者です。
+以下の情報をもとに、訪問介護記録をSOAP形式と申し送り文で作成してください。
+
+【利用者】${userName || '（未入力）'}
+【訪問日時】${visitDate} ${visitTime}
+【担当】${staff}
+${vitals ? `【バイタル】${vitals}` : ''}
+【実施した介護内容】${careItems || ''}${careMemo ? `\n補足：${careMemo}` : ''}
+【利用者の様子】${condition || ''}${userWords ? `\n本人の言葉：${userWords}` : ''}
+【特記事項】${remarks || '（なし）'}
+
+以下のJSON形式のみで返答してください。前置き・後書き不要。
+{
+  "S": "主観的情報（本人の訴え・表情・言葉）",
+  "O": "客観的情報（バイタル・観察・実施内容）",
+  "A": "アセスメント（状態評価・変化・懸念点）",
+  "P": "プラン（次回への計画・対応方針）",
+  "申し送り": "次の担当者への申し送り文（3〜4行）"
+}`;
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    const json = JSON.parse(data.result.replace(/```json|```/g,'').trim());
+    renderResult(json, userName, visitDate);
+    document.getElementById('resultSub').textContent = `${userName} — ${visitDate}`;
+  } catch(e) {
+    document.getElementById('resultSub').textContent = '生成に失敗しました';
+    const eb = document.getElementById('errorBox');
+    eb.textContent = 'エラー: ' + e.message;
+    eb.style.display = 'block';
+  } finally {
+    nextBtn.disabled = false;
+    document.getElementById('nextBtnText').textContent = '新しい記録';
+    document.getElementById('nextBtnArrow').textContent = '＋';
+  }
+}
+
+function renderResult(json, user, date) {
+  const labels = { S:'主観的情報', O:'客観的情報', A:'アセスメント', P:'プラン', '申し送り':'申し送り' };
+  const html = Object.entries(json).map(([k, v]) => `
+    <div class="soap-card">
+      <div class="soap-card-head">
+        <span class="soap-tag">${k}</span>
+        <span class="soap-card-title">${labels[k]||''}</span>
+      </div>
+      <div class="soap-card-body">${v}</div>
+    </div>
+  `).join('');
+  const allText = Object.entries(json).map(([k,v])=>`【${k}】\n${v}`).join('\n\n');
+  document.getElementById('resultContent').innerHTML = html + `
+    <div class="result-actions">
+      <button class="btn-outline" onclick="copyText(\`${allText.replace(/`/g,'\\`')}\`)">📋 コピー</button>
+      <button class="btn-outline" onclick="shareText(\`${allText.replace(/`/g,'\\`')}\`)">📤 共有</button>
+    </div>
+  `;
+}
+
+function copyText(text) { navigator.clipboard.writeText(text).then(() => showToast('コピーしました')); }
+function shareText(text) { if (navigator.share) { navigator.share({ title: 'ケア記録', text }); } else { copyText(text); } }
+
+function resetAll() {
+  currentStep = 0;
+  ['userName','visitDate','visitTime','staffName','careMemo','userWords','remarks','temp','bp','pulse','spo2','weight'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.querySelectorAll('.chip.selected').forEach(c => c.classList.remove('selected'));
+  updateProgress();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+document.getElementById('userName').addEventListener('change', function() {
+  document.getElementById('customNameField').style.display = this.value === 'その他' ? 'block' : 'none';
+});
+
+const today = new Date();
+document.getElementById('visitDate').value = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
+updateProgress();
+</script>
+</body>
+</html>
