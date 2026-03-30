@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ケアノート AI</title>
+<title>JUST</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #F7F5F0;
+  --bg: #F4F1EC;
   --surface: #FFFFFF;
-  --border: #E2DDD6;
+  --border: #E0DAD2;
   --text: #1A1814;
   --text2: #6B6660;
   --text3: #A8A29C;
@@ -20,406 +20,461 @@
   --warn: #C94A0A;
   --warn-light: #FEF0E8;
   --sans: 'Noto Sans JP', sans-serif;
-  --bottom-safe: env(safe-area-inset-bottom, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; overflow: hidden; }
 body { font-family: var(--sans); background: var(--bg); color: var(--text); }
 .app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
-.topbar {
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  padding: 12px 16px;
-  display: flex; align-items: center; justify-content: space-between;
-  flex-shrink: 0;
-  padding-top: max(12px, env(safe-area-inset-top));
-}
-.topbar-logo { display: flex; align-items: center; gap: 8px; }
-.logo-mark {
-  width: 32px; height: 32px; border-radius: 9px;
-  background: var(--accent); color: #fff;
-  font-size: 13px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-}
-.logo-text { font-size: 16px; font-weight: 700; letter-spacing: -0.02em; }
-.logo-ai { font-size: 10px; color: var(--text3); font-weight: 400; margin-left: 2px; }
-.step-progress {
-  background: var(--surface);
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.step-dots { display: flex; gap: 6px; align-items: center; margin-bottom: 6px; }
-.step-dot { height: 4px; border-radius: 2px; background: var(--border); transition: all 0.3s; flex: 1; }
-.step-dot.done { background: var(--accent2); }
-.step-dot.active { background: var(--accent); }
-.step-info { display: flex; justify-content: space-between; align-items: center; }
-.step-label { font-size: 13px; font-weight: 500; color: var(--text2); }
-.step-count { font-size: 11px; color: var(--text3); }
-.scroll-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.step-panel { display: none; padding: 20px 16px; animation: fadeUp 0.25s ease; }
-.step-panel.active { display: block; }
-@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-.step-heading { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-.step-subheading { font-size: 13px; color: var(--text2); margin-bottom: 20px; line-height: 1.5; }
-.field { margin-bottom: 16px; }
-label { display: block; font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
-input[type=text], select, textarea {
-  width: 100%; font-family: var(--sans); font-size: 15px;
-  padding: 12px 14px; border: 1.5px solid var(--border);
-  border-radius: 10px; background: var(--surface); color: var(--text);
-  appearance: none; -webkit-appearance: none; transition: border-color 0.15s;
-}
-input[type=text]:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent2); }
-textarea { resize: none; line-height: 1.65; }
-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
-.vitals-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.vital-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; padding: 10px 12px; }
-.vital-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
-.vital-input { font-size: 18px; font-weight: 500; border: none; background: none; color: var(--text); width: 100%; padding: 0; }
-.vital-input:focus { outline: none; }
-.vital-unit { font-size: 11px; color: var(--text3); margin-top: 2px; }
-.chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
-.chip { padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: var(--surface); font-size: 13px; color: var(--text2); cursor: pointer; transition: all 0.15s; font-family: var(--sans); }
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 16px; padding-top: calc(12px + var(--safe-top)); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-mark { width: 34px; height: 34px; border-radius: 10px; background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; display: flex; align-items: center; justify-content: center; }
+.logo-name { font-size: 18px; font-weight: 700; letter-spacing: 0.08em; color: var(--accent); }
+.logo-sub { font-size: 10px; color: var(--text3); margin-left: 6px; }
+.progress-bar { background: var(--surface); padding: 10px 16px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.dots { display: flex; gap: 5px; margin-bottom: 6px; }
+.dot { flex: 1; height: 3px; border-radius: 2px; background: var(--border); transition: all 0.3s; }
+.dot.done { background: var(--accent2); }
+.dot.active { background: var(--accent); }
+.progress-meta { display: flex; justify-content: space-between; }
+.progress-label { font-size: 12px; font-weight: 500; color: var(--text2); }
+.progress-count { font-size: 11px; color: var(--text3); }
+.scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.panel { display: none; padding: 20px 16px 100px; animation: up 0.2s ease; }
+.panel.active { display: block; }
+@keyframes up { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+.panel-title { font-size: 19px; font-weight: 700; margin-bottom: 4px; }
+.panel-sub { font-size: 13px; color: var(--text2); margin-bottom: 22px; line-height: 1.5; }
+.section { margin-bottom: 22px; }
+.section-label { font-size: 11px; font-weight: 700; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+.btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.select-btn { padding: 14px 10px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--surface); font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; text-align: center; transition: all 0.15s; font-family: var(--sans); line-height: 1.4; }
+.select-btn:active { transform: scale(0.97); }
+.select-btn.selected { border-color: var(--accent); background: var(--accent); color: #fff; }
+.select-btn .btn-sub { font-size: 10px; font-weight: 400; opacity: 0.75; display: block; margin-top: 3px; }
+.date-row { display: flex; gap: 8px; }
+.date-btn { flex: 1; padding: 12px 6px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; font-family: var(--sans); transition: all 0.15s; text-align: center; }
+.date-btn.selected { border-color: var(--accent); background: var(--accent); color: #fff; }
+.time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.time-btn { padding: 12px 6px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); font-size: 12px; font-weight: 500; color: var(--text2); cursor: pointer; text-align: center; font-family: var(--sans); transition: all 0.15s; }
+.time-btn.selected { border-color: var(--accent); background: var(--accent); color: #fff; }
+.vital-section { margin-bottom: 18px; }
+.vital-name { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 8px; }
+.vital-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.vital-btn { padding: 8px 14px; border: 1.5px solid var(--border); border-radius: 20px; background: var(--surface); font-size: 13px; color: var(--text2); cursor: pointer; font-family: var(--sans); transition: all 0.15s; }
+.vital-btn.selected { border-color: var(--accent); background: var(--accent-light); color: var(--accent-text); font-weight: 500; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 9px 16px; border: 1.5px solid var(--border); border-radius: 22px; background: var(--surface); font-size: 13px; color: var(--text2); cursor: pointer; font-family: var(--sans); transition: all 0.15s; }
 .chip.selected { border-color: var(--accent); background: var(--accent-light); color: var(--accent-text); font-weight: 500; }
-.soap-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
-.soap-card-head { padding: 10px 14px; background: var(--accent-light); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.soap-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
+.soap-head { padding: 10px 14px; background: var(--accent-light); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
 .soap-tag { font-size: 11px; font-weight: 700; background: var(--accent); color: #fff; padding: 2px 8px; border-radius: 5px; font-family: monospace; }
-.soap-card-title { font-size: 12px; color: var(--accent-text); font-weight: 500; }
-.soap-card-body { padding: 12px 14px; font-size: 14px; line-height: 1.75; color: var(--text); }
-.result-actions { display: flex; gap: 8px; margin-top: 4px; margin-bottom: 80px; }
-.btn-outline { flex: 1; padding: 12px; border: 1.5px solid var(--border); border-radius: 10px; background: var(--surface); font-size: 13px; font-weight: 500; font-family: var(--sans); color: var(--text2); cursor: pointer; transition: background 0.15s; }
-.bottom-bar { background: var(--surface); border-top: 1px solid var(--border); padding: 12px 16px; padding-bottom: calc(12px + var(--bottom-safe)); display: flex; gap: 10px; flex-shrink: 0; }
-.btn-back { width: 48px; height: 48px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--bg); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.btn-next { flex: 1; height: 48px; border-radius: 12px; background: var(--accent); color: #fff; border: none; font-size: 15px; font-weight: 700; font-family: var(--sans); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: opacity 0.15s, transform 0.1s; }
-.btn-next:active { transform: scale(0.98); }
-.btn-next:disabled { opacity: 0.45; cursor: not-allowed; }
-.spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+.soap-tag-label { font-size: 12px; color: var(--accent-text); font-weight: 500; }
+.soap-body { padding: 12px 14px; font-size: 14px; line-height: 1.8; color: var(--text); }
+.action-row { display: flex; gap: 8px; margin-top: 8px; }
+.action-btn { flex: 1; padding: 13px; border: 1.5px solid var(--border); border-radius: 12px; background: var(--surface); font-size: 13px; font-weight: 500; font-family: var(--sans); color: var(--text2); cursor: pointer; }
+.error { background: var(--warn-light); border: 1px solid #F4B08A; border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--warn); margin-bottom: 16px; display: none; line-height: 1.5; }
+.bottom { background: var(--surface); border-top: 1px solid var(--border); padding: 12px 16px; padding-bottom: calc(12px + var(--safe-bottom)); display: flex; gap: 10px; flex-shrink: 0; }
+.back-btn { width: 50px; height: 50px; border-radius: 14px; border: 1.5px solid var(--border); background: var(--bg); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.next-btn { flex: 1; height: 50px; border-radius: 14px; background: var(--accent); color: #fff; border: none; font-size: 15px; font-weight: 700; font-family: var(--sans); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.15s, transform 0.1s; }
+.next-btn:active { transform: scale(0.98); }
+.next-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.error-box { background: var(--warn-light); border: 1px solid #F4B08A; border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--warn); margin-bottom: 16px; display: none; line-height: 1.5; }
-.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--text); color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 13px; opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 200; white-space: nowrap; }
+.toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(8px); background: var(--text); color: #fff; padding: 10px 20px; border-radius: 10px; font-size: 13px; opacity: 0; transition: all 0.25s; pointer-events: none; z-index: 999; white-space: nowrap; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 <div class="app">
   <div class="topbar">
-    <div class="topbar-logo">
-      <div class="logo-mark">ケ</div>
-      <span class="logo-text">ケアノート<span class="logo-ai">AI</span></span>
+    <div class="logo">
+      <div class="logo-mark">JUST</div>
+      <span class="logo-name">JUST</span>
+      <span class="logo-sub">介護記録AI</span>
     </div>
-    <span style="font-size:11px;color:var(--text3);">ver 1.0</span>
+    <span style="font-size:10px;color:var(--text3);">v1.1</span>
   </div>
-  <div class="step-progress">
-    <div class="step-dots">
-      <div class="step-dot active" id="dot0"></div>
-      <div class="step-dot" id="dot1"></div>
-      <div class="step-dot" id="dot2"></div>
-      <div class="step-dot" id="dot3"></div>
-      <div class="step-dot" id="dot4"></div>
+  <div class="progress-bar">
+    <div class="dots">
+      <div class="dot active" id="d0"></div>
+      <div class="dot" id="d1"></div>
+      <div class="dot" id="d2"></div>
+      <div class="dot" id="d3"></div>
+      <div class="dot" id="d4"></div>
+      <div class="dot" id="d5"></div>
     </div>
-    <div class="step-info">
-      <span class="step-label" id="stepLabel">利用者・日時</span>
-      <span class="step-count" id="stepCount">1 / 5</span>
+    <div class="progress-meta">
+      <span class="progress-label" id="pLabel">利用者を選ぶ</span>
+      <span class="progress-count" id="pCount">1 / 6</span>
     </div>
   </div>
-  <div class="scroll-area" id="scrollArea">
+  <div class="scroll" id="scroll">
 
-    <div class="step-panel active" id="step0">
-      <div class="step-heading">利用者と日時</div>
-      <div class="step-subheading">基本情報を入力してください</div>
-      <div class="field">
-        <label>利用者名</label>
-        <select id="userName">
-          <option value="">選択してください</option>
-          <option value="田中 花子（82歳・女性・要介護2）">田中 花子（82歳・女性・要介護2）</option>
-          <option value="山本 一郎（76歳・男性・要介護3）">山本 一郎（76歳・男性・要介護3）</option>
-          <option value="佐藤 幸子（88歳・女性・要介護1）">佐藤 幸子（88歳・女性・要介護1）</option>
-          <option value="その他">その他（直接入力）</option>
-        </select>
-      </div>
-      <div class="field" id="customNameField" style="display:none;">
-        <label>利用者名（直接入力）</label>
-        <input type="text" id="customName" placeholder="例：鈴木 太郎（74歳・男性・要介護2）">
-      </div>
-      <div class="field">
-        <label>訪問日</label>
-        <input type="text" id="visitDate" placeholder="例：2026年4月1日">
-      </div>
-      <div class="field">
-        <label>訪問時間</label>
-        <input type="text" id="visitTime" placeholder="例：13:00〜14:30">
-      </div>
-      <div class="field">
-        <label>担当スタッフ</label>
-        <input type="text" id="staffName" placeholder="例：鈴木 美咲">
+    <!-- STEP 0: 利用者 -->
+    <div class="panel active" id="p0">
+      <div class="panel-title">利用者を選んでください</div>
+      <div class="panel-sub">担当する利用者をタップしてください</div>
+      <div class="btn-grid" id="userGrid">
+        <button class="select-btn" onclick="selectSingle('userGrid',this,'user','田中 花子')">田中 花子<span class="btn-sub">82歳・女性・要介護2</span></button>
+        <button class="select-btn" onclick="selectSingle('userGrid',this,'user','山本 一郎')">山本 一郎<span class="btn-sub">76歳・男性・要介護3</span></button>
+        <button class="select-btn" onclick="selectSingle('userGrid',this,'user','佐藤 幸子')">佐藤 幸子<span class="btn-sub">88歳・女性・要介護1</span></button>
+        <button class="select-btn" onclick="selectSingle('userGrid',this,'user','鈴木 正雄')">鈴木 正雄<span class="btn-sub">79歳・男性・要介護2</span></button>
+        <button class="select-btn" onclick="selectSingle('userGrid',this,'user','中村 節子')">中村 節子<span class="btn-sub">85歳・女性・要介護3</span></button>
+        <button class="select-btn" onclick="selectSingle('userGrid',this,'user','伊藤 健一')">伊藤 健一<span class="btn-sub">71歳・男性・要介護1</span></button>
       </div>
     </div>
 
-    <div class="step-panel" id="step1">
-      <div class="step-heading">バイタル測定</div>
-      <div class="step-subheading">測定した数値を入力してください<br>未測定は空欄でOKです</div>
-      <div class="vitals-grid">
-        <div class="vital-card">
-          <div class="vital-label">体温</div>
-          <input class="vital-input" type="text" inputmode="decimal" id="temp" placeholder="36.5">
-          <div class="vital-unit">℃</div>
-        </div>
-        <div class="vital-card">
-          <div class="vital-label">血圧</div>
-          <input class="vital-input" type="text" id="bp" placeholder="128/74">
-          <div class="vital-unit">mmHg</div>
-        </div>
-        <div class="vital-card">
-          <div class="vital-label">脈拍</div>
-          <input class="vital-input" type="text" inputmode="numeric" id="pulse" placeholder="72">
-          <div class="vital-unit">回/分</div>
-        </div>
-        <div class="vital-card">
-          <div class="vital-label">SpO₂</div>
-          <input class="vital-input" type="text" inputmode="numeric" id="spo2" placeholder="97">
-          <div class="vital-unit">%</div>
+    <!-- STEP 1: 日時・スタッフ -->
+    <div class="panel" id="p1">
+      <div class="panel-title">日時とスタッフ</div>
+      <div class="panel-sub">訪問日と担当者をタップしてください</div>
+      <div class="section">
+        <div class="section-label">訪問日</div>
+        <div class="date-row" id="dateRow"></div>
+      </div>
+      <div class="section">
+        <div class="section-label">時間帯</div>
+        <div class="time-grid" id="timeGrid">
+          <button class="time-btn" onclick="selectSingle('timeGrid',this,'time','午前（9:00〜12:00）')">午前<span style="display:block;font-size:10px;opacity:0.7;margin-top:2px;">9:00〜12:00</span></button>
+          <button class="time-btn" onclick="selectSingle('timeGrid',this,'time','昼（12:00〜14:00）')">昼<span style="display:block;font-size:10px;opacity:0.7;margin-top:2px;">12:00〜14:00</span></button>
+          <button class="time-btn" onclick="selectSingle('timeGrid',this,'time','午後（14:00〜17:00）')">午後<span style="display:block;font-size:10px;opacity:0.7;margin-top:2px;">14:00〜17:00</span></button>
+          <button class="time-btn" onclick="selectSingle('timeGrid',this,'time','夕方（17:00〜19:00）')">夕方<span style="display:block;font-size:10px;opacity:0.7;margin-top:2px;">17:00〜19:00</span></button>
+          <button class="time-btn" onclick="selectSingle('timeGrid',this,'time','夜（19:00〜21:00）')">夜<span style="display:block;font-size:10px;opacity:0.7;margin-top:2px;">19:00〜21:00</span></button>
+          <button class="time-btn" onclick="selectSingle('timeGrid',this,'time','夜間（21:00〜）')">夜間<span style="display:block;font-size:10px;opacity:0.7;margin-top:2px;">21:00〜</span></button>
         </div>
       </div>
-      <div class="field" style="margin-top:16px;">
-        <label>体重（kg）</label>
-        <input type="text" inputmode="decimal" id="weight" placeholder="例：52.3">
+      <div class="section">
+        <div class="section-label">担当スタッフ</div>
+        <div class="btn-grid" id="staffGrid">
+          <button class="select-btn" onclick="selectSingle('staffGrid',this,'staff','長戸')">長戸</button>
+          <button class="select-btn" onclick="selectSingle('staffGrid',this,'staff','石崎')">石崎</button>
+          <button class="select-btn" onclick="selectSingle('staffGrid',this,'staff','塩月')">塩月</button>
+          <button class="select-btn" onclick="selectSingle('staffGrid',this,'staff','濱崎')">濱崎</button>
+          <button class="select-btn" onclick="selectSingle('staffGrid',this,'staff','藤澤')">藤澤</button>
+          <button class="select-btn" onclick="selectSingle('staffGrid',this,'staff','その他')">その他</button>
+        </div>
       </div>
     </div>
 
-    <div class="step-panel" id="step2">
-      <div class="step-heading">実施した介護内容</div>
-      <div class="step-subheading">タップで選択 + 自由記述でメモ</div>
-      <div class="field">
-        <label>実施項目（複数選択可）</label>
-        <div class="chip-group" id="careChips">
-          <div class="chip" onclick="toggleChip(this)">入浴介助</div>
-          <div class="chip" onclick="toggleChip(this)">清拭</div>
-          <div class="chip" onclick="toggleChip(this)">更衣介助</div>
-          <div class="chip" onclick="toggleChip(this)">食事介助</div>
-          <div class="chip" onclick="toggleChip(this)">服薬確認</div>
-          <div class="chip" onclick="toggleChip(this)">口腔ケア</div>
-          <div class="chip" onclick="toggleChip(this)">排泄介助</div>
-          <div class="chip" onclick="toggleChip(this)">体位変換</div>
-          <div class="chip" onclick="toggleChip(this)">移乗介助</div>
-          <div class="chip" onclick="toggleChip(this)">歩行介助</div>
-          <div class="chip" onclick="toggleChip(this)">リハビリ補助</div>
-          <div class="chip" onclick="toggleChip(this)">買い物支援</div>
-          <div class="chip" onclick="toggleChip(this)">掃除・洗濯</div>
-          <div class="chip" onclick="toggleChip(this)">安否確認</div>
+    <!-- STEP 2: バイタル -->
+    <div class="panel" id="p2">
+      <div class="panel-title">バイタル</div>
+      <div class="panel-sub">測定値をタップしてください。未測定はスキップOKです</div>
+      <div class="vital-section">
+        <div class="vital-name">🌡 体温（℃）</div>
+        <div class="vital-row" id="tempGrid">
+          <button class="vital-btn" onclick="selectSingle('tempGrid',this,'temp','35度台')">35度台</button>
+          <button class="vital-btn" onclick="selectSingle('tempGrid',this,'temp','36.0〜36.4')">36.0〜36.4</button>
+          <button class="vital-btn" onclick="selectSingle('tempGrid',this,'temp','36.5〜36.9')">36.5〜36.9</button>
+          <button class="vital-btn" onclick="selectSingle('tempGrid',this,'temp','37.0〜37.4')">37.0〜37.4</button>
+          <button class="vital-btn" onclick="selectSingle('tempGrid',this,'temp','37.5以上（発熱）')">37.5以上</button>
+          <button class="vital-btn" onclick="selectSingle('tempGrid',this,'temp','未測定')">未測定</button>
         </div>
       </div>
-      <div class="field">
-        <label>補足メモ</label>
-        <textarea id="careMemo" rows="3" placeholder="例：昼食は全量摂取、入浴時に右膝の痛みを確認"></textarea>
+      <div class="vital-section">
+        <div class="vital-name">💓 血圧（mmHg）</div>
+        <div class="vital-row" id="bpGrid">
+          <button class="vital-btn" onclick="selectSingle('bpGrid',this,'bp','低め（90台/60台）')">低め</button>
+          <button class="vital-btn" onclick="selectSingle('bpGrid',this,'bp','正常（110〜130/70〜85）')">正常</button>
+          <button class="vital-btn" onclick="selectSingle('bpGrid',this,'bp','やや高め（130〜150/85〜90）')">やや高め</button>
+          <button class="vital-btn" onclick="selectSingle('bpGrid',this,'bp','高め（150以上/90以上）')">高め</button>
+          <button class="vital-btn" onclick="selectSingle('bpGrid',this,'bp','未測定')">未測定</button>
+        </div>
+      </div>
+      <div class="vital-section">
+        <div class="vital-name">💗 脈拍（回/分）</div>
+        <div class="vital-row" id="pulseGrid">
+          <button class="vital-btn" onclick="selectSingle('pulseGrid',this,'pulse','遅め（60未満）')">遅め</button>
+          <button class="vital-btn" onclick="selectSingle('pulseGrid',this,'pulse','正常（60〜100）')">正常</button>
+          <button class="vital-btn" onclick="selectSingle('pulseGrid',this,'pulse','やや速め（100〜120）')">やや速め</button>
+          <button class="vital-btn" onclick="selectSingle('pulseGrid',this,'pulse','速め（120以上）')">速め</button>
+          <button class="vital-btn" onclick="selectSingle('pulseGrid',this,'pulse','未測定')">未測定</button>
+        </div>
+      </div>
+      <div class="vital-section">
+        <div class="vital-name">🫁 SpO₂（%）</div>
+        <div class="vital-row" id="spo2Grid">
+          <button class="vital-btn" onclick="selectSingle('spo2Grid',this,'spo2','96〜100%（正常）')">96〜100%</button>
+          <button class="vital-btn" onclick="selectSingle('spo2Grid',this,'spo2','93〜95%（要注意）')">93〜95%</button>
+          <button class="vital-btn" onclick="selectSingle('spo2Grid',this,'spo2','92%以下（要対応）')">92%以下</button>
+          <button class="vital-btn" onclick="selectSingle('spo2Grid',this,'spo2','未測定')">未測定</button>
+        </div>
       </div>
     </div>
 
-    <div class="step-panel" id="step3">
-      <div class="step-heading">利用者の様子</div>
-      <div class="step-subheading">本人の状態や訴えを記録します</div>
-      <div class="field">
-        <label>全体的な様子</label>
-        <div class="chip-group" id="conditionChips">
-          <div class="chip" onclick="toggleChip(this)">元気そう</div>
-          <div class="chip" onclick="toggleChip(this)">疲れ気味</div>
-          <div class="chip" onclick="toggleChip(this)">表情明るい</div>
-          <div class="chip" onclick="toggleChip(this)">表情暗い</div>
-          <div class="chip" onclick="toggleChip(this)">会話活発</div>
-          <div class="chip" onclick="toggleChip(this)">傾眠傾向</div>
-          <div class="chip" onclick="toggleChip(this)">食欲あり</div>
-          <div class="chip" onclick="toggleChip(this)">食欲低下</div>
-          <div class="chip" onclick="toggleChip(this)">痛みの訴えあり</div>
-          <div class="chip" onclick="toggleChip(this)">協力的</div>
-          <div class="chip" onclick="toggleChip(this)">拒否あり</div>
+    <!-- STEP 3: 介護内容 -->
+    <div class="panel" id="p3">
+      <div class="panel-title">実施した介護内容</div>
+      <div class="panel-sub">該当するものを全てタップしてください</div>
+      <div class="section">
+        <div class="section-label">身体介護</div>
+        <div class="chips" id="care1">
+          <button class="chip" onclick="toggleChip(this)">入浴介助</button>
+          <button class="chip" onclick="toggleChip(this)">清拭</button>
+          <button class="chip" onclick="toggleChip(this)">更衣介助</button>
+          <button class="chip" onclick="toggleChip(this)">食事介助</button>
+          <button class="chip" onclick="toggleChip(this)">口腔ケア</button>
+          <button class="chip" onclick="toggleChip(this)">排泄介助</button>
+          <button class="chip" onclick="toggleChip(this)">体位変換</button>
+          <button class="chip" onclick="toggleChip(this)">移乗介助</button>
+          <button class="chip" onclick="toggleChip(this)">歩行介助</button>
         </div>
       </div>
-      <div class="field">
-        <label>本人の言葉・訴え</label>
-        <textarea id="userWords" rows="3" placeholder="例：「右膝が痛い」「お風呂気持ちよかった」など"></textarea>
+      <div class="section">
+        <div class="section-label">医療・健康管理</div>
+        <div class="chips" id="care2">
+          <button class="chip" onclick="toggleChip(this)">服薬確認</button>
+          <button class="chip" onclick="toggleChip(this)">バイタル測定</button>
+          <button class="chip" onclick="toggleChip(this)">リハビリ補助</button>
+          <button class="chip" onclick="toggleChip(this)">褥瘡確認</button>
+          <button class="chip" onclick="toggleChip(this)">体重測定</button>
+        </div>
       </div>
-      <div class="field">
-        <label>特記事項・申し送り</label>
-        <textarea id="remarks" rows="3" placeholder="例：排便3日なし・次回確認要。長女から電話あり面談希望"></textarea>
+      <div class="section">
+        <div class="section-label">生活支援</div>
+        <div class="chips" id="care3">
+          <button class="chip" onclick="toggleChip(this)">買い物支援</button>
+          <button class="chip" onclick="toggleChip(this)">掃除</button>
+          <button class="chip" onclick="toggleChip(this)">洗濯</button>
+          <button class="chip" onclick="toggleChip(this)">調理</button>
+          <button class="chip" onclick="toggleChip(this)">安否確認</button>
+          <button class="chip" onclick="toggleChip(this)">話し相手</button>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">食事の摂取量</div>
+        <div class="chips" id="mealGrid">
+          <button class="chip" onclick="selectSingle('mealGrid',this,'meal','全量摂取')">全量摂取</button>
+          <button class="chip" onclick="selectSingle('mealGrid',this,'meal','8割摂取')">8割</button>
+          <button class="chip" onclick="selectSingle('mealGrid',this,'meal','半量摂取')">半量</button>
+          <button class="chip" onclick="selectSingle('mealGrid',this,'meal','少量摂取')">少量</button>
+          <button class="chip" onclick="selectSingle('mealGrid',this,'meal','摂取なし')">摂取なし</button>
+          <button class="chip" onclick="selectSingle('mealGrid',this,'meal','該当なし')">該当なし</button>
+        </div>
       </div>
     </div>
 
-    <div class="step-panel" id="step4">
-      <div class="step-heading">ケア記録</div>
-      <div class="step-subheading" id="resultSub">AIが記録を生成しています...</div>
-      <div class="error-box" id="errorBox"></div>
+    <!-- STEP 4: 様子 -->
+    <div class="panel" id="p4">
+      <div class="panel-title">利用者の様子</div>
+      <div class="panel-sub">当てはまるものを全てタップしてください</div>
+      <div class="section">
+        <div class="section-label">全体的な様子</div>
+        <div class="chips" id="cond1">
+          <button class="chip" onclick="toggleChip(this)">元気そう</button>
+          <button class="chip" onclick="toggleChip(this)">疲れ気味</button>
+          <button class="chip" onclick="toggleChip(this)">表情明るい</button>
+          <button class="chip" onclick="toggleChip(this)">表情暗い</button>
+          <button class="chip" onclick="toggleChip(this)">会話活発</button>
+          <button class="chip" onclick="toggleChip(this)">無口・寡黙</button>
+          <button class="chip" onclick="toggleChip(this)">傾眠傾向</button>
+          <button class="chip" onclick="toggleChip(this)">混乱あり</button>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">食欲・水分</div>
+        <div class="chips" id="cond2">
+          <button class="chip" onclick="toggleChip(this)">食欲あり</button>
+          <button class="chip" onclick="toggleChip(this)">食欲低下</button>
+          <button class="chip" onclick="toggleChip(this)">水分摂取良好</button>
+          <button class="chip" onclick="toggleChip(this)">水分摂取少ない</button>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">訴え・痛み</div>
+        <div class="chips" id="cond3">
+          <button class="chip" onclick="toggleChip(this)">訴えなし</button>
+          <button class="chip" onclick="toggleChip(this)">頭痛の訴え</button>
+          <button class="chip" onclick="toggleChip(this)">腹痛の訴え</button>
+          <button class="chip" onclick="toggleChip(this)">腰痛の訴え</button>
+          <button class="chip" onclick="toggleChip(this)">膝痛の訴え</button>
+          <button class="chip" onclick="toggleChip(this)">倦怠感の訴え</button>
+          <button class="chip" onclick="toggleChip(this)">めまいの訴え</button>
+          <button class="chip" onclick="toggleChip(this)">吐き気の訴え</button>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">排泄</div>
+        <div class="chips" id="cond4">
+          <button class="chip" onclick="toggleChip(this)">排便あり（正常）</button>
+          <button class="chip" onclick="toggleChip(this)">排便なし</button>
+          <button class="chip" onclick="toggleChip(this)">便秘気味</button>
+          <button class="chip" onclick="toggleChip(this)">下痢気味</button>
+          <button class="chip" onclick="toggleChip(this)">排尿問題なし</button>
+          <button class="chip" onclick="toggleChip(this)">尿量少ない</button>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-label">特記事項・申し送り</div>
+        <div class="chips" id="remarks">
+          <button class="chip" onclick="toggleChip(this)">家族から連絡あり</button>
+          <button class="chip" onclick="toggleChip(this)">次回受診あり</button>
+          <button class="chip" onclick="toggleChip(this)">薬の変更あり</button>
+          <button class="chip" onclick="toggleChip(this)">転倒リスク注意</button>
+          <button class="chip" onclick="toggleChip(this)">皮膚トラブル注意</button>
+          <button class="chip" onclick="toggleChip(this)">食欲低下が続いている</button>
+          <button class="chip" onclick="toggleChip(this)">排便3日以上なし</button>
+          <button class="chip" onclick="toggleChip(this)">特記事項なし</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5: 結果 -->
+    <div class="panel" id="p5">
+      <div class="panel-title">ケア記録</div>
+      <div class="panel-sub" id="resultSub">AIが記録を生成しています...</div>
+      <div class="error" id="errorBox"></div>
       <div id="resultContent"></div>
     </div>
 
   </div>
-  <div class="bottom-bar">
-    <button class="btn-back" id="backBtn" onclick="prevStep()">←</button>
-    <button class="btn-next" id="nextBtn" onclick="nextStep()">
-      <span id="nextBtnText">次へ</span>
-      <span id="nextBtnArrow">→</span>
+  <div class="bottom">
+    <button class="back-btn" id="backBtn" onclick="prev()">←</button>
+    <button class="next-btn" id="nextBtn" onclick="next()">
+      <span id="nextText">次へ</span>
+      <span id="nextIcon">→</span>
     </button>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <script>
-let currentStep = 0;
-const TOTAL_STEPS = 5;
-const stepLabels = ['利用者・日時','バイタル測定','介護内容','利用者の様子','ケア記録'];
+const STEPS = 6;
+const LABELS = ['利用者を選ぶ','日時・スタッフ','バイタル','介護内容','利用者の様子','ケア記録'];
+let step = 0;
+let data = {};
 
-function updateProgress() {
-  for (let i = 0; i < TOTAL_STEPS; i++) {
-    document.getElementById('dot' + i).className = 'step-dot' + (i < currentStep ? ' done' : i === currentStep ? ' active' : '');
-    document.getElementById('step' + i).classList.toggle('active', i === currentStep);
+function initDates() {
+  const row = document.getElementById('dateRow');
+  row.innerHTML = '';
+  const today = new Date();
+  [['昨日',-1],['今日',0],['明日',1]].forEach(([label, diff]) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() + diff);
+    const val = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+    const btn = document.createElement('button');
+    btn.className = 'date-btn' + (diff === 0 ? ' selected' : '');
+    btn.innerHTML = `${d.getMonth()+1}/${d.getDate()}<span style="display:block;font-size:10px;opacity:0.8;margin-top:2px;">${label}</span>`;
+    btn.onclick = () => {
+      document.querySelectorAll('#dateRow .date-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      data.date = val + `（${label}）`;
+    };
+    if (diff === 0) data.date = val + '（今日）';
+    row.appendChild(btn);
+  });
+}
+
+function selectSingle(gridId, btn, key, val) {
+  document.querySelectorAll(`#${gridId} button`).forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  data[key] = val;
+}
+
+function toggleChip(btn) { btn.classList.toggle('selected'); }
+
+function getChips(...ids) {
+  return ids.flatMap(id => [...document.querySelectorAll(`#${id} .chip.selected`)].map(c => c.textContent)).join('・');
+}
+
+function updateUI() {
+  for (let i = 0; i < STEPS; i++) {
+    document.getElementById('d'+i).className = 'dot'+(i<step?' done':i===step?' active':'');
+    document.getElementById('p'+i).classList.toggle('active', i===step);
   }
-  document.getElementById('stepLabel').textContent = stepLabels[currentStep];
-  document.getElementById('stepCount').textContent = `${currentStep + 1} / ${TOTAL_STEPS}`;
-  document.getElementById('backBtn').style.opacity = currentStep === 0 ? '0.3' : '1';
-  document.getElementById('backBtn').disabled = currentStep === 0;
-  const isLast = currentStep === TOTAL_STEPS - 1;
-  document.getElementById('nextBtnText').textContent = isLast ? '新しい記録' : currentStep === TOTAL_STEPS - 2 ? '記録を生成' : '次へ';
-  document.getElementById('nextBtnArrow').textContent = isLast ? '＋' : currentStep === TOTAL_STEPS - 2 ? '✦' : '→';
-  document.getElementById('scrollArea').scrollTop = 0;
+  document.getElementById('pLabel').textContent = LABELS[step];
+  document.getElementById('pCount').textContent = `${step+1} / ${STEPS}`;
+  document.getElementById('backBtn').style.opacity = step===0?'0.3':'1';
+  document.getElementById('backBtn').disabled = step===0;
+  const isLast = step===STEPS-1, isPre = step===STEPS-2;
+  document.getElementById('nextText').textContent = isLast?'新しい記録':isPre?'記録を生成':'次へ';
+  document.getElementById('nextIcon').textContent = isLast?'＋':isPre?'✦':'→';
+  document.getElementById('scroll').scrollTop = 0;
 }
 
-function nextStep() {
-  if (currentStep === TOTAL_STEPS - 2) { generateRecord(); return; }
-  if (currentStep === TOTAL_STEPS - 1) { resetAll(); return; }
-  currentStep++;
-  updateProgress();
+function next() {
+  if (step===STEPS-2) { generate(); return; }
+  if (step===STEPS-1) { reset(); return; }
+  step++; updateUI();
 }
+function prev() { if(step===0)return; step--; updateUI(); }
 
-function prevStep() {
-  if (currentStep === 0) return;
-  currentStep--;
-  updateProgress();
-}
-
-function toggleChip(el) { el.classList.toggle('selected'); }
-
-function getSelectedChips(groupId) {
-  return [...document.querySelectorAll(`#${groupId} .chip.selected`)].map(c => c.textContent).join('・');
-}
-
-async function generateRecord() {
-  currentStep++;
-  updateProgress();
-  const nextBtn = document.getElementById('nextBtn');
-  nextBtn.disabled = true;
-  document.getElementById('nextBtnText').textContent = '生成中';
-  document.getElementById('nextBtnArrow').innerHTML = '<div class="spinner"></div>';
-
-  const userName = document.getElementById('userName').value === 'その他'
-    ? document.getElementById('customName').value
-    : document.getElementById('userName').value;
-  const visitDate = document.getElementById('visitDate').value;
-  const visitTime = document.getElementById('visitTime').value;
-  const staff = document.getElementById('staffName').value;
-  const temp = document.getElementById('temp').value;
-  const bp = document.getElementById('bp').value;
-  const pulse = document.getElementById('pulse').value;
-  const spo2 = document.getElementById('spo2').value;
-  const weight = document.getElementById('weight').value;
-  const careItems = getSelectedChips('careChips');
-  const careMemo = document.getElementById('careMemo').value;
-  const condition = getSelectedChips('conditionChips');
-  const userWords = document.getElementById('userWords').value;
-  const remarks = document.getElementById('remarks').value;
-
+async function generate() {
+  step++; updateUI();
+  const btn = document.getElementById('nextBtn');
+  btn.disabled = true;
+  document.getElementById('nextText').textContent = '生成中';
+  document.getElementById('nextIcon').innerHTML = '<div class="spinner"></div>';
   document.getElementById('resultSub').textContent = 'AIが記録を生成しています...';
   document.getElementById('resultContent').innerHTML = '';
   document.getElementById('errorBox').style.display = 'none';
 
-  const vitals = [temp&&`体温${temp}℃`, bp&&`血圧${bp}mmHg`, pulse&&`脈拍${pulse}回/分`, spo2&&`SpO₂${spo2}%`, weight&&`体重${weight}kg`].filter(Boolean).join('、');
+  const care = getChips('care1','care2','care3');
+  const cond = getChips('cond1','cond2','cond3','cond4');
+  const rem = getChips('remarks');
 
   const prompt = `あなたは経験豊富な訪問介護のサービス提供責任者です。
-以下の情報をもとに、訪問介護記録をSOAP形式と申し送り文で作成してください。
+以下の情報をもとに訪問介護記録をSOAP形式と申し送り文で作成してください。
 
-【利用者】${userName || '（未入力）'}
-【訪問日時】${visitDate} ${visitTime}
-【担当】${staff}
-${vitals ? `【バイタル】${vitals}` : ''}
-【実施した介護内容】${careItems || ''}${careMemo ? `\n補足：${careMemo}` : ''}
-【利用者の様子】${condition || ''}${userWords ? `\n本人の言葉：${userWords}` : ''}
-【特記事項】${remarks || '（なし）'}
+【利用者】${data.user||'未選択'}
+【訪問日時】${data.date||''} ${data.time||''}
+【担当スタッフ】${data.staff||'未選択'}
+【バイタル】体温:${data.temp||'未測定'} 血圧:${data.bp||'未測定'} 脈拍:${data.pulse||'未測定'} SpO₂:${data.spo2||'未測定'}
+【実施した介護内容】${care||'記録なし'}
+【食事摂取】${data.meal||'記録なし'}
+【利用者の様子】${cond||'記録なし'}
+【特記事項】${rem||'なし'}
 
 以下のJSON形式のみで返答してください。前置き・後書き不要。
-{
-  "S": "主観的情報（本人の訴え・表情・言葉）",
-  "O": "客観的情報（バイタル・観察・実施内容）",
-  "A": "アセスメント（状態評価・変化・懸念点）",
-  "P": "プラン（次回への計画・対応方針）",
-  "申し送り": "次の担当者への申し送り文（3〜4行）"
-}`;
+{"S":"主観的情報","O":"客観的情報","A":"アセスメント","P":"プラン","申し送り":"申し送り文（3〜4行）"}`;
 
   try {
-    const res = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-    const json = JSON.parse(data.result.replace(/```json|```/g,'').trim());
-    renderResult(json, userName, visitDate);
-    document.getElementById('resultSub').textContent = `${userName} — ${visitDate}`;
+    const res = await fetch('/api/generate', { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({prompt}) });
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.error||`HTTP ${res.status}`);
+    const json = JSON.parse(d.result.replace(/```json|```/g,'').trim());
+    renderResult(json);
+    document.getElementById('resultSub').textContent = `${data.user} — ${data.date}`;
   } catch(e) {
     document.getElementById('resultSub').textContent = '生成に失敗しました';
     const eb = document.getElementById('errorBox');
     eb.textContent = 'エラー: ' + e.message;
     eb.style.display = 'block';
   } finally {
-    nextBtn.disabled = false;
-    document.getElementById('nextBtnText').textContent = '新しい記録';
-    document.getElementById('nextBtnArrow').textContent = '＋';
+    btn.disabled = false;
+    document.getElementById('nextText').textContent = '新しい記録';
+    document.getElementById('nextIcon').textContent = '＋';
   }
 }
 
-function renderResult(json, user, date) {
-  const labels = { S:'主観的情報', O:'客観的情報', A:'アセスメント', P:'プラン', '申し送り':'申し送り' };
-  const html = Object.entries(json).map(([k, v]) => `
-    <div class="soap-card">
-      <div class="soap-card-head">
-        <span class="soap-tag">${k}</span>
-        <span class="soap-card-title">${labels[k]||''}</span>
-      </div>
-      <div class="soap-card-body">${v}</div>
-    </div>
-  `).join('');
+function renderResult(json) {
+  const labels = {S:'主観的情報',O:'客観的情報',A:'アセスメント',P:'プラン','申し送り':'申し送り'};
   const allText = Object.entries(json).map(([k,v])=>`【${k}】\n${v}`).join('\n\n');
-  document.getElementById('resultContent').innerHTML = html + `
-    <div class="result-actions">
-      <button class="btn-outline" onclick="copyText(\`${allText.replace(/`/g,'\\`')}\`)">📋 コピー</button>
-      <button class="btn-outline" onclick="shareText(\`${allText.replace(/`/g,'\\`')}\`)">📤 共有</button>
-    </div>
-  `;
+  document.getElementById('resultContent').innerHTML =
+    Object.entries(json).map(([k,v])=>`<div class="soap-card"><div class="soap-head"><span class="soap-tag">${k}</span><span class="soap-tag-label">${labels[k]||''}</span></div><div class="soap-body">${v}</div></div>`).join('') +
+    `<div class="action-row"><button class="action-btn" onclick="copyAll()">📋 コピー</button><button class="action-btn" onclick="shareAll()">📤 共有</button></div>`;
+  window._lastText = allText;
 }
 
-function copyText(text) { navigator.clipboard.writeText(text).then(() => showToast('コピーしました')); }
-function shareText(text) { if (navigator.share) { navigator.share({ title: 'ケア記録', text }); } else { copyText(text); } }
+function copyAll() { navigator.clipboard.writeText(window._lastText||'').then(()=>showToast('コピーしました')); }
+function shareAll() { navigator.share?navigator.share({title:'ケア記録',text:window._lastText}):copyAll(); }
 
-function resetAll() {
-  currentStep = 0;
-  ['userName','visitDate','visitTime','staffName','careMemo','userWords','remarks','temp','bp','pulse','spo2','weight'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
-  document.querySelectorAll('.chip.selected').forEach(c => c.classList.remove('selected'));
-  updateProgress();
+function reset() {
+  step=0; data={};
+  document.querySelectorAll('.select-btn.selected,.time-btn.selected,.vital-btn.selected,.chip.selected,.date-btn.selected').forEach(b=>b.classList.remove('selected'));
+  initDates();
+  updateUI();
 }
 
 function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
 }
 
-document.getElementById('userName').addEventListener('change', function() {
-  document.getElementById('customNameField').style.display = this.value === 'その他' ? 'block' : 'none';
-});
-
-const today = new Date();
-document.getElementById('visitDate').value = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日`;
-updateProgress();
+initDates();
+updateUI();
 </script>
 </body>
 </html>
