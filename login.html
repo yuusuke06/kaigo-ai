@@ -1,1 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>JUST ログイン</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans JP', sans-serif; background: #F4F1EC; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.card { background: #fff; border-radius: 16px; padding: 32px 24px; width: 100%; max-width: 360px; border: 1px solid #E0DAD2; }
+.logo { text-align: center; margin-bottom: 28px; }
+.logo-mark { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; background: #1B5E40; border-radius: 12px; font-size: 13px; font-weight: 700; color: #fff; letter-spacing: 0.05em; margin-bottom: 8px; }
+.logo-name { font-size: 22px; font-weight: 700; color: #1B5E40; letter-spacing: 0.1em; }
+.logo-sub { font-size: 11px; color: #A8A29C; margin-top: 2px; }
+.field { margin-bottom: 16px; }
+label { display: block; font-size: 12px; font-weight: 500; color: #6B6660; margin-bottom: 6px; }
+input { width: 100%; padding: 12px 14px; border: 1.5px solid #E0DAD2; border-radius: 10px; font-size: 15px; font-family: inherit; background: #F4F1EC; color: #1A1814; transition: border-color 0.15s; }
+input:focus { outline: none; border-color: #1B5E40; background: #fff; }
+.btn { width: 100%; padding: 14px; background: #1B5E40; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; margin-top: 8px; transition: opacity 0.15s; }
+.btn:hover { opacity: 0.88; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.error { background: #FEF0E8; border: 1px solid #F4B08A; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #C94A0A; margin-top: 12px; display: none; }
+.footer { text-align: center; font-size: 11px; color: #A8A29C; margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-mark">JUST</div>
+    <div class="logo-name">JUST</div>
+    <div class="logo-sub">Joint Unified Support Technology</div>
+  </div>
+  <div class="field">
+    <label>メールアドレス</label>
+    <input type="email" id="email" placeholder="example@email.com" />
+  </div>
+  <div class="field">
+    <label>パスワード</label>
+    <input type="password" id="pass" placeholder="••••••••" />
+  </div>
+  <button class="btn" id="loginBtn" onclick="login()">ログイン</button>
+  <div class="error" id="errorBox"></div>
+  <div class="footer">招待リンクを受け取っていない方は<br>管理者にお問い合わせください</div>
+</div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const { createClient } = supabase;
+const sb = createClient(
+  'YOUR_SUPABASE_URL',      // ← SupabaseのProject URLに書き換え
+  'YOUR_SUPABASE_ANON_KEY'  // ← SupabaseのAnon Keyに書き換え
+);
+
+async function login() {
+  const email = document.getElementById('email').value.trim();
+  const pass  = document.getElementById('pass').value;
+  const btn   = document.getElementById('loginBtn');
+  const err   = document.getElementById('errorBox');
+  err.style.display = 'none';
+  if (!email || !pass) { showError('メールアドレスとパスワードを入力してください'); return; }
+  btn.disabled = true;
+  btn.textContent = 'ログイン中...';
+  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) {
+    showError('ログインに失敗しました。メールアドレスとパスワードを確認してください。');
+    btn.disabled = false;
+    btn.textContent = 'ログイン';
+    return;
+  }
+  window.location.href = '/';
+}
+
+function showError(msg) {
+  const err = document.getElementById('errorBox');
+  err.textContent = msg;
+  err.style.display = 'block';
+}
+
+// Enterキーでログイン
+document.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+
+// すでにログイン済みならトップへ
+sb.auth.getSession().then(({ data: { session } }) => {
+  if (session) window.location.href = '/';
+});
+</script>
+</body>
+</html>
