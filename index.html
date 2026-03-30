@@ -475,6 +475,14 @@ function showToast(msg) {
 
 initDates();
 updateUI();
-</script>
+</script>// ─── Supabase認証チェック ───
+const { createClient } = supabase;
+const sb = createClient(
+  'YOUR_SUPABASE_URL',      // ← SupabaseのProject URLに書き換え
+  'YOUR_SUPABASE_ANON_KEY'  // ← SupabaseのAnon Keyに書き換え
+);
+sb.auth.getSession().then(({ data: { session } }) => {
+  if (!session) window.location.href = '/login.html';
+});
 </body>
 </html>
